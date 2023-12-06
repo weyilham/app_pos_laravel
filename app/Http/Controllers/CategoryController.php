@@ -55,8 +55,8 @@ class CategoryController extends Controller
             'nama_kategori' => 'required',
             'slug' => 'required',
         ], [
-            'nama_kategori.required' => 'Nama Kategori Wajib di isi',
-            'slug.required' => 'Slug Wajib di isi',
+            'nama_kategori.required' => 'Data Wajib di isi',
+            'slug.required' => 'Data Wajib di isi',
         ]);
 
         if($validasi->fails()){
@@ -92,9 +92,11 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function edit(Category $category)
+    public function edit($id)
     {
         //
+        $data = Category::where('id', $id)->first();
+        return response()->json(['result' => $data]);
     }
 
     /**
@@ -104,9 +106,32 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
         //
+        //validasi
+        $validasi = Validator::make($request->all(), [
+            'nama_kategori' => 'required',
+            'slug' => 'required',
+        ], [
+            'nama_kategori.required' => 'Data Wajib di isi',
+            'slug.required' => 'Data Wajib di isi',
+        ]);
+
+        if($validasi->fails()){
+            return response()->json(['errors' => $validasi->errors()]);
+        }else{
+            $data = [
+                'nama_kategori' => $request->nama_kategori,
+                'slug' => $request->slug
+            ];
+
+            // dd($data);
+            Category::where('id', $id)->update($data);
+
+            return response()->json(['success' => 'Data Berhasil Di Update']);
+
+        }
     }
 
     /**
@@ -115,8 +140,10 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy(Category $category, $id)
     {
         //
+        Category::where('id', $id)->delete();
+        return response()->json(['success' => 'Data Berhasil dihapus!']);
     }
 }
