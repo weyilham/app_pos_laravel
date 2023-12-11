@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -15,6 +18,13 @@ class ProductController extends Controller
     public function index()
     {
         //
+        $data = Product::orderBy('nama_produk', 'asc');
+        return DataTables::of($data)
+        ->addIndexColumn()
+        ->addColumn('aksi', function($data){
+            return view('master.product.tombol')->with('data', $data);
+        })
+        ->make(true);
     }
 
     /**
@@ -25,6 +35,8 @@ class ProductController extends Controller
     public function create()
     {
         //
+        $data = Category::all();
+        return view('master.product.tambah', ['title' => 'Tambah Produk', 'kategori' => $data]);
     }
 
     /**
@@ -36,6 +48,23 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         //
+        // ddd($request->file('gambar'));
+        $validasi = $request->validate([
+            'id_kategori' => 'required',
+            'nama_produk' => 'required',
+            'deskripsi' => 'required',
+            'harga' => 'required',
+            'gambar_produk' => 'image|file|max:1024'
+        ]);
+        
+
+        if($request->file('gambar_produk')){
+            $validasi['gambar_produk'] = $request->file('gambar_produk')->store('gambar-produk');
+        }
+
+        Product::create($validasi);
+        return redirect('/produk')->with('success', 'data berhasil di tambahkan');
+        // dd($validasi);
     }
 
     /**
@@ -44,9 +73,11 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show($id)
     {
         //
+        $product = Product::where('id', $id)->first();
+        return response()->json(['product' => $product]);
     }
 
     /**
@@ -58,6 +89,12 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         //
+        // return $product->id;
+        return view('master.product.edit', [
+            'title' => 'Edit Produk',
+            'produk' => Product::where('id', $product->id)->first(),
+            'kategori' => Category::all()
+        ]);
     }
 
     /**
@@ -70,6 +107,23 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         //
+
+        $validasi = $request->validate([
+            'id_kategori' => 'required',
+            'nama_produk' => 'required',
+            'deskripsi' => 'required',
+            'harga' => 'required',
+            'gambar_produk' => 'image|file|max:1024'
+        ]);
+        
+
+        if($request->file('gambar_produk')){
+            Storage::delete($request->oldImage);
+            $validasi['gambar_produk'] = $request->file('gambar_produk')->store('gambar-produk');
+        }
+
+        Product::where('id', $product->id)->update($validasi);
+        return redirect('/produk')->with('success', 'data berhasil di Update');
     }
 
     /**
@@ -81,5 +135,8 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+        Product::where('id', $product->id)->delete();
+        Storage::delete($product->gambar_produk);
+        return response()->json(['result' => 'Data Berhasil dihapus!']);
     }
 }

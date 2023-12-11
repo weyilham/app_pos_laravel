@@ -1,7 +1,10 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PosController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
+use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,5 +33,25 @@ Route::get('kategori', function(){
     ]);
 });
 Route::resource('kategoriAjax', CategoryController::class);
+
+Route::get('produk', function(){
+    return view('master.product.index', [
+        'title' => 'Data Produk'
+    ]);
+});
+
+Route::resource('product', ProductController::class);
+
+Route::resource('pos', PosController::class);
+
+Route::get('getProdukAjax', function(){
+    return view('pos.product-card', ['produk' => Product::all()]);
+});
+
+Route::get('getProdukId/{id}', function($id){
+        $produk = Product::where('id_kategori', $id)->get();
+        return view('pos.product-card', ['produk' => $produk]);
+});
+
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
