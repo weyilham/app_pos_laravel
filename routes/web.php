@@ -1,10 +1,12 @@
 <?php
 
+use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PosController;
+use Gloudemans\Shoppingcart\Facades\Cart;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
-use App\Models\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +44,16 @@ Route::get('produk', function(){
 
 Route::resource('product', ProductController::class);
 
-Route::resource('pos', PosController::class);
+// Route::resource('pos', PosController::class);
+
+//route POS
+Route::get('pos', function(){
+    return view('pos.index', [
+        'title' => 'Point Of Sale',
+        'kategori' => Category::all(),
+        'produk' => Product::all(),
+    ]);
+});
 
 Route::get('getProdukAjax', function(){
     return view('pos.product-card', ['produk' => Product::all()]);
@@ -52,6 +63,13 @@ Route::get('getProdukId/{id}', function($id){
         $produk = Product::where('id_kategori', $id)->get();
         return view('pos.product-card', ['produk' => $produk]);
 });
+
+//Cart
+Route::delete('clear-cart', function(){
+    Cart::destroy();
+    return response()->json(['success' => 'Pesanan Berhasil di hapus']);
+});
+Route::resource('cart', PosController::class)->except('index');
 
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

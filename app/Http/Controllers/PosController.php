@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Pos;
 use App\Models\Product;
+use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 
 class PosController extends Controller
@@ -19,12 +20,6 @@ class PosController extends Controller
         //
 
         // return 'joss';
-
-        return view('pos.index', [
-            'title' => 'Point Of Sale',
-            'kategori' => Category::all(),
-            'produk' => Product::all(),
-        ]);
     }
 
     /**
@@ -35,6 +30,7 @@ class PosController extends Controller
     public function create()
     {
         //
+        
     }
 
     /**
@@ -46,6 +42,11 @@ class PosController extends Controller
     public function store(Request $request)
     {
         //
+        $product = Product::where('id', $request->id)->first();
+        Cart::add($product->id, $product->nama_produk, 1, $product->harga, 0 );
+        // Cart::add(['id' => 1, 'name' => $product->nama_produk, 'qty' => 1, 'weight' => 0, 'price' => $product->harga]);
+        // return $product->nama_produk;
+        return view('pos.cart');
     }
 
     /**
@@ -88,8 +89,13 @@ class PosController extends Controller
      * @param  \App\Models\Pos  $pos
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Pos $pos)
+    public function destroy($id)
     {
         //
+        
+            Cart::remove($id);
+            return view('pos.cart');
+        
+        
     }
 }
