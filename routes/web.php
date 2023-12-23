@@ -19,9 +19,9 @@ use App\Http\Controllers\CategoryController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard.index', [
@@ -29,14 +29,14 @@ Route::get('/dashboard', function () {
     ]);
 });
 
-Route::get('kategori', function(){
+Route::get('kategori', function () {
     return view('master.category.index', [
         'title' => 'Data Kategori'
     ]);
 });
 Route::resource('kategoriAjax', CategoryController::class);
 
-Route::get('produk', function(){
+Route::get('produk', function () {
     return view('master.product.index', [
         'title' => 'Data Produk'
     ]);
@@ -47,7 +47,7 @@ Route::resource('product', ProductController::class);
 // Route::resource('pos', PosController::class);
 
 //route POS
-Route::get('pos', function(){
+Route::get('pos', function () {
     return view('pos.index', [
         'title' => 'Point Of Sale',
         'kategori' => Category::all(),
@@ -55,21 +55,26 @@ Route::get('pos', function(){
     ]);
 });
 
-Route::get('getProdukAjax', function(){
+Route::get('getProdukAjax', function () {
     return view('pos.product-card', ['produk' => Product::all()]);
 });
 
-Route::get('getProdukId/{id}', function($id){
-        $produk = Product::where('id_kategori', $id)->get();
-        return view('pos.product-card', ['produk' => $produk]);
+Route::get('getProdukId/{id}', function ($id) {
+    $produk = Product::where('id_kategori', $id)->get();
+    return view('pos.product-card', ['produk' => $produk]);
 });
 
 //Cart
-Route::delete('clear-cart', function(){
+Route::delete('clear-cart', function () {
     Cart::destroy();
-    return response()->json(['success' => 'Pesanan Berhasil di hapus']);
+    return view('pos.cart');
+});
+Route::get('footer-cart', function () {
+
+    return view('pos.footer-cart');
 });
 Route::resource('cart', PosController::class)->except('index');
 
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'index'])->name('login');

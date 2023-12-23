@@ -199,7 +199,8 @@
 
                                                 <td width="30px">{{ $loop->iteration }}</td>
                                                 <td width="150px"><strong>{{ $item->name }}</strong> </td>
-                                                <td width="70px" class="text-right"> <strong>{{ $item->price }}</strong>
+                                                <td width="70px" class="text-right"> <strong
+                                                        id="harga">{{ $item->price }}</strong>
                                                 </td>
 
                                                 <td class="text-right" width="100px">
@@ -222,18 +223,19 @@
                                                     <div class="mb-3">
                                                         <label for="jumlah" class="form-label">Jumlah Pesanan</label>
                                                         <input type="number" class="form-control form-control-sm"
-                                                            id="jumlah" data-id="{{ $item->id }}"
+                                                            id="qty" data-id="{{ $item->rowId }}" min="1"
                                                             value="{{ $item->qty }}">
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                {{-- <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="diskon" class="form-label">Diskon(%)</label>
                                                         <input type="number" class="form-control form-control-sm"
-                                                            id="diskon" data-id="{{ $item->id }}" value="0">
+                                                            id="diskon" data-id="{{ $item->rowId }}" value="0"
+                                                            min="0">
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                             </div>
                                         </div>
                                     </div>
@@ -246,19 +248,19 @@
 
                     <hr class="mt-5 mb-2">
 
-                    <div class="footer-cart">
+                    <div class="footer-cart" id="footer-cart">
                         <table class="col-12">
-                            <tr>
+                            {{-- <tr>
                                 <td>Sub Total</td>
-                                <td class="text-right">Rp. {{ Cart::priceTotal() }}</td>
-                            </tr>
-                            <tr>
+                                <td class="text-right">Rp. <span id="sub-total">{{ Cart::priceTotal() }}</span></td>
+                            </tr> --}}
+                            {{-- <tr>
                                 <td>Diskon</td>
-                                <td class="text-right">Rp. {{ Cart::discount() }}</td>
-                            </tr>
-                            <tr>
+                                <td class="text-right">Rp. <span id="set-diskon">{{ Cart::discount() }}</span></td>
+                            </tr> --}}
+                            <tr style="font-weight: bold !important">
                                 <td>Total Bayar</td>
-                                <td class="text-right fw-bold">Rp.{{ Cart::total() }}</td>
+                                <td class="text-right">Rp. <span id="set-total">{{ Cart::total() }}</span></td>
                             </tr>
                             <tr>
                                 <td colspan="2">
@@ -268,10 +270,13 @@
                             <tr>
                                 <td colspan="2" class="text-right">
                                     <button class="btn btn-warning">Transfer</button>
-                                    <button class="btn btn-success">Bayar Langsung</button>
+                                    <button class="btn btn-success bayar-langsung" data-toggle="modal"
+                                        data-target="#exampleModal">Bayar
+                                        Langsung</button>
                                 </td>
                             </tr>
                         </table>
+
                     </div>
                 </div>
             </div>
@@ -280,10 +285,43 @@
 
 
     </div>
+
+    {{-- Modal Bayar --}}
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Pembayaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="controler">
+                        <div class="header-pembayarann">
+                            <img src="" alt="">
+                            <strong class="text-primary">Total Pembayaran : </strong>
+                            <h3 class="total-pembayaran">Rp.20000</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Keluar</button>
+                    <button type="button" class="btn btn-success bayar-pesanan">Bayar Pesanan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 @endsection
 @push('script')
     <script>
         $(document).ready(function() {
+
             $('body').addClass('sidebar-mini')
             //add class active
             const header = $('#kategori')
@@ -298,6 +336,11 @@
                     this.className += " kategori-active";
                 });
             }
+
+            //hapus modal-backdrop di modal
+            $(document).on('click', '.bayar-langsung', function(e) {
+                $('.modal-backdrop').removeClass('modal-backdrop')
+            })
 
             // console.log(header);
 
@@ -350,6 +393,8 @@
                         $('#jumlah-pesanan').html(parseInt(jumlahPesanan, 10) + 1)
                         $('#pesanan').html(respons)
 
+                        changeFooter()
+
                     }
                 })
 
@@ -363,7 +408,9 @@
                     type: 'delete',
                     success: function(respons) {
                         $('#jumlah-pesanan').html('0')
-                        $('#pesanan').html('')
+                        $('#pesanan').html(respons)
+
+                        changeFooter()
                     }
                 })
             })
@@ -379,10 +426,43 @@
                         $('#jumlah-pesanan').html(parseInt(jumlahPesanan, 10) - 1)
                         $('#pesanan').html(respons)
                         // console.log(respons);
+                        changeFooter()
                     }
                 })
             })
 
+            //fungsi set quantity
+            $(document).on('change', '#qty', function() {
+                const id = $(this).data('id')
+                let harga = $('#harga').html()
+                let qty = $(this).val()
+                // let diskon = $('#set-total').html().split(',').join('')
+                // let totalBayar = $('#set-diskon').html().split(',').join('')
+
+                $.ajax({
+                    url: 'cart/' + id,
+                    type: 'put',
+                    data: {
+                        id: id,
+                        qty: qty,
+                    },
+                    success: function(respons) {
+                        changeFooter()
+                    }
+                })
+            })
+
+            //set diskon
+
+            function changeFooter() {
+                $.ajax({
+                    url: 'footer-cart',
+                    type: 'get',
+                    success: function(respons) {
+                        $('#footer-cart').html(respons)
+                    }
+                })
+            }
 
         })
     </script>

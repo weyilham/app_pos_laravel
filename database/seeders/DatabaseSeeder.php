@@ -28,16 +28,18 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Category::create([
+            'id' => 1,
             'nama_kategori' => 'Makanan',
             'slug' => 'makanan'
         ]);
 
         Category::create([
+            'id' => 2,
             'nama_kategori' => 'Minuman',
             'slug' => 'minuman'
         ]);
 
-      
+
         // \App\Models\User::factory(10)->create();
     }
 }

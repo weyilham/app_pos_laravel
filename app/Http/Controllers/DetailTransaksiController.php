@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\Pos;
-use App\Models\Product;
-use Gloudemans\Shoppingcart\Facades\Cart;
+use App\Models\DetailTransaksi;
 use Illuminate\Http\Request;
 
-class PosController extends Controller
+class DetailTransaksiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,8 +15,6 @@ class PosController extends Controller
     public function index()
     {
         //
-
-        // return 'joss';
     }
 
     /**
@@ -30,7 +25,6 @@ class PosController extends Controller
     public function create()
     {
         //
-
     }
 
     /**
@@ -42,20 +36,15 @@ class PosController extends Controller
     public function store(Request $request)
     {
         //
-        $product = Product::where('id', $request->id)->first();
-        Cart::add($product->id, $product->nama_produk, 1, $product->harga, 0);
-        // Cart::add(['id' => 1, 'name' => $product->nama_produk, 'qty' => 1, 'weight' => 0, 'price' => $product->harga]);
-        // return $product->nama_produk;
-        return view('pos.cart');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Pos  $pos
+     * @param  \App\Models\DetailTransaksi  $detailTransaksi
      * @return \Illuminate\Http\Response
      */
-    public function show(Pos $pos)
+    public function show(DetailTransaksi $detailTransaksi)
     {
         //
     }
@@ -63,43 +52,34 @@ class PosController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Pos  $pos
+     * @param  \App\Models\DetailTransaksi  $detailTransaksi
      * @return \Illuminate\Http\Response
      */
-    public function edit(Pos $pos)
+    public function edit(DetailTransaksi $detailTransaksi)
     {
         //
-        // return 'joss';
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Pos  $pos
+     * @param  \App\Models\DetailTransaksi  $detailTransaksi
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, DetailTransaksi $detailTransaksi)
     {
         //
-        // return $request->qty;
-
-        // Cart::setDiscount($id, $request->diskon);
-        Cart::update($id, ['qty' => $request->qty]);
-        return response()->json(['success' => 'berhasil di update']);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Pos  $pos
+     * @param  \App\Models\DetailTransaksi  $detailTransaksi
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DetailTransaksi $detailTransaksi)
     {
         //
-
-        Cart::remove($id);
-        return view('pos.cart');
     }
 }
